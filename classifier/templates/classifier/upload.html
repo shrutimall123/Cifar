@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIFAR-10 Image Classification</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #2ec4b6;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --border-radius: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .app-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .cifar-categories {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .category-tag {
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #495057;
+        }
+
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: #f8f9fa;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #adb5bd;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .upload-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(46, 196, 182, 0.1);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .confidence-meter {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .confidence-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), var(--primary));
+            width: 0%; /* Will be set dynamically */
+            transition: width 1s ease-out;
+        }
+
+        .prediction {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin: 15px 0;
+        }
+
+        .uploaded-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .selected-file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <h1>CIFAR-10 Image Classification</h1>
+            <p class="app-description">Upload an image to classify it into one of the CIFAR-10 categories</p>
+            
+            <div class="cifar-categories">
+                <span class="category-tag">Airplane</span>
+                <span class="category-tag">Automobile</span>
+                <span class="category-tag">Bird</span>
+                <span class="category-tag">Cat</span>
+                <span class="category-tag">Deer</span>
+                <span class="category-tag">Dog</span>
+                <span class="category-tag">Frog</span>
+                <span class="category-tag">Horse</span>
+                <span class="category-tag">Ship</span>
+                <span class="category-tag">Truck</span>
+            </div>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="upload-area" id="upload-area">
+                <div class="upload-icon">📁</div>
+                <p>Drag & drop an image here or click to browse</p>
+                <p class="selected-file-name" id="file-name">No file selected</p>
+                
+                <div class="file-input-wrapper">
+                    {{ form.as_p }}
+                </div>
+            </div>
+            
+            <button type="submit" class="upload-btn">Classify Image</button>
+        </form>
+
+        {% if uploaded_image %}
+            <div class="result">
+                <div class="result-header">
+                    <span class="result-title">Classification Result</span>
+                </div>
+                
+                <img src="{{ uploaded_image.image.url }}" alt="Uploaded Image" class="uploaded-image">
+                
+                <div class="confidence-meter">
+                    <div class="confidence-bar" id="confidence-bar" style="width: {{ confidence }}%;"></div>
+                </div>
+                
+                <p class="prediction">
+                    {{ prediction }}
+                    <span style="font-size: 16px; font-weight: normal; color: #6c757d;">
+                        ({{ confidence|floatformat:2 }}% confidence)
+                    </span>
+                </p>
+            </div>
+        {% endif %}
+        
+        <footer>
+            <p>CIFAR-10 Image Classification | Powered by Deep Learning</p>
+        </footer>
+    </div>
+    
+    <script>
+        // JavaScript to display selected filename
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.querySelector('input[type="file"]');
+            const fileNameDisplay = document.getElementById('file-name');
+            const uploadArea = document.getElementById('upload-area');
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        fileNameDisplay.textContent = this.files[0].name;
+                        uploadArea.style.borderColor = '#4361ee';
+                    } else {
+                        fileNameDisplay.textContent = 'No file selected';
+                    }
+                });
+            }
+            
+            // If we have confidence bar, animate it
+            const confidenceBar = document.getElementById('confidence-bar');
+            if (confidenceBar) {
+                setTimeout(() => {
+                    confidenceBar.style.width = confidenceBar.getAttribute('style').split(':')[1];
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
